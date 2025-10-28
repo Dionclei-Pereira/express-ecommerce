@@ -6,10 +6,6 @@ const app = express();
 // Using express default json configuration
 app.use(express.json());
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000')
-});
-
 let id = 1;
 let users: User[] = [{
     name: 'John',
@@ -36,4 +32,26 @@ app.post('/users', (req: Request, res: Response) => {
     user.id = id++;
     users.push(user);
     res.send('User created successfully');
+});
+
+app.put('/users/:id', (req: Request, res: Response) => {
+    const userId = Number(req.params.id);
+    let user: User = req.body;
+
+    const indexOf = users.findIndex(u => u.id == userId);
+    user.id = userId;
+    users[indexOf] = user;
+    res.send('User updated successfully');
+})
+
+app.delete('/users/:id', (req: Request, res: Response) => {
+    const userId = Number(req.params.id);
+    const indexOf = users.findIndex(u => u.id == userId);
+
+    users.splice(indexOf, 1);
+    res.send('User deleted succesfully');
+})
+
+app.listen(3000, () => {
+    console.log('Server is running on port 3000');
 });
