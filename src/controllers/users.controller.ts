@@ -2,9 +2,6 @@ import { Request, Response } from 'express';
 import { User } from '../interfaces/user.interface';
 import { getFirestore } from 'firebase-admin/firestore';
 
-let users: User[] = [];
-
-
 export class UsersController {
 
     static async findAll(req: Request, res: Response) {
@@ -26,7 +23,7 @@ export class UsersController {
             id: userId,
             ...doc.data()
         };
-        
+
         res.send(user);
     }
 
@@ -36,21 +33,22 @@ export class UsersController {
         res.send('User created successfully');
     }
 
-    static update(req: Request, res: Response) {
+    static async update(req: Request, res: Response) {
         const userId = req.params.id;
         let user: User = req.body;
     
-        const indexOf = users.findIndex(u => u.id == userId);
-        user.id = userId;
-        users[indexOf] = user;
+        await getFirestore().collection('users').doc(userId).set({
+            name: user.name,
+            email: user.email
+        });
         res.send('User updated successfully');
     }
 
-    static delete(req: Request, res: Response) {
+    static async delete(req: Request, res: Response) {
     const userId = req.params.id;
-    const indexOf = users.findIndex(u => u.id == userId);
+    
+    await getFirestore().collection('users').doc(userId).delete();
 
-    users.splice(indexOf, 1);
     res.send('User deleted succesfully');
     }
 }
