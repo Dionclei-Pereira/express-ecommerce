@@ -2,21 +2,24 @@ import { Request, Response } from 'express';
 import { User } from '../interfaces/user.interface';
 import { getFirestore } from 'firebase-admin/firestore';
 
-let users: User[] = [{
-    name: 'John',
-    email: 'john@gmail.com',
-    id: 0
-}];
+let users: User[] = [];
 
 
 export class UsersController {
 
-    static findAll(req: Request, res: Response) {
+    static async findAll(req: Request, res: Response) {
+        const snapshot = await getFirestore().collection('users').get();
+        const users = snapshot.docs.map(doc => {
+            return {
+                id: doc.id,
+                ...doc.data()
+            };
+        });
         res.send(users);
     }
 
     static findById(req: Request, res: Response) {
-        const userId = Number(req.params.id);
+        const userId = req.params.id;
         let user = users.find(user => user.id === userId);
         res.send(user);
     }
@@ -28,7 +31,7 @@ export class UsersController {
     }
 
     static update(req: Request, res: Response) {
-        const userId = Number(req.params.id);
+        const userId = req.params.id;
         let user: User = req.body;
     
         const indexOf = users.findIndex(u => u.id == userId);
@@ -38,7 +41,7 @@ export class UsersController {
     }
 
     static delete(req: Request, res: Response) {
-    const userId = Number(req.params.id);
+    const userId = req.params.id;
     const indexOf = users.findIndex(u => u.id == userId);
 
     users.splice(indexOf, 1);
