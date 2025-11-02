@@ -18,9 +18,15 @@ export class UsersController {
         res.send(users);
     }
 
-    static findById(req: Request, res: Response) {
+    static async findById(req: Request, res: Response) {
         const userId = req.params.id;
-        let user = users.find(user => user.id === userId);
+
+        const doc = await getFirestore().collection('users').doc(userId).get();
+        let user = {
+            id: userId,
+            ...doc.data()
+        };
+        
         res.send(user);
     }
 
