@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { User } from '../interfaces/user.interface';
 import { getFirestore } from 'firebase-admin/firestore';
+import { NotFoundError } from '../errors/not-found.error';
 
 export class UsersController {
 
@@ -24,12 +25,16 @@ export class UsersController {
             const userId = req.params.id;
 
             const doc = await getFirestore().collection('users').doc(userId).get();
-            let user = {
-                id: userId,
-                ...doc.data()
-            };
+            if (doc.exists) {
+                let user = {
+                    id: userId,
+                    ...doc.data()
+                };
 
-            res.send(user);
+                res.send(user);
+            } else {
+                throw new NotFoundError("User not found");
+            }
         } catch (error) {
             next(error);
         }
@@ -50,11 +55,19 @@ export class UsersController {
             const userId = req.params.id;
             let user: User = req.body;
 
-            await getFirestore().collection('users').doc(userId).set({
-                name: user.name,
-                email: user.email
-            });
-            res.send('User updated successfully');
+            const docRef = await getFirestore().collection('users').doc(userId);
+
+            if ((await docRef.get()).exists) {
+                docRef.set({
+                    name: user.name,
+                    email: user.email
+                });
+                res.send('User updated successfully');
+            } else {
+                throw new NotFoundError('User not found')
+            }
+
+
         } catch (error) {
             next(error);
         }
