@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { User } from '../interfaces/user.interface';
+import { User } from '../models/user.model';
 import { getFirestore } from 'firebase-admin/firestore';
 import { NotFoundError } from '../errors/not-found.error';
 
