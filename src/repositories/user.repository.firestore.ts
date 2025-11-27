@@ -1,7 +1,6 @@
 import { CollectionReference, getFirestore } from "firebase-admin/firestore";
 import { User } from "../models/user.model";
 import { IUserRepository } from "./interfaces/user.repository.interface";
-
 export class UserRepositoryFirestore implements IUserRepository {
 
     private collection: CollectionReference;
@@ -35,12 +34,12 @@ export class UserRepositoryFirestore implements IUserRepository {
     }
 
     async save(user: User): Promise<void> {
-        await this.collection.add(user);
+        const docRef = await this.collection.doc(user.id).set(user);
     }
 
     async update(user: User): Promise<void> {
         const docRef = await this.collection.doc(user.id);
-        
+
         docRef.set({
             name: user.name,
             email: user.email
@@ -49,5 +48,13 @@ export class UserRepositoryFirestore implements IUserRepository {
 
     async delete(id: string) {
         await this.collection.doc(id).delete();
+    }
+
+    async exist(id: string): Promise<boolean> {
+        const doc = await this.collection.doc(id).get();
+        if (doc.exists) {
+            return true;
+        }
+        return false;
     }
 }

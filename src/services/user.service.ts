@@ -45,4 +45,8 @@ export class UserService {
     async delete(id: string): Promise<void> {
         this.userRepository.delete(id);
     }
+
+    async exist(id: string): Promise<boolean> {
+        return await this.exist(id)
+    }
 }
